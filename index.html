@@ -101,8 +101,6 @@ li {
 <div class="card">
   <button id="recordBtn">Registra promemoria</button>
   <div id="status"></div>
-
-  <!-- Input manuale -->
   <textarea id="manualPromemoria" rows="3" placeholder="Scrivi manualmente il promemoria se il microfono non funziona..."></textarea>
   <button id="manualPromemoriaBtn">Aggiungi manualmente</button>
 </div>
@@ -122,18 +120,15 @@ li {
 <!-- LISTA DELLA SPESA -->
 <div class="card">
   <h2>Lista della Spesa</h2>
-
-  <!-- Input microfono -->
   <input type="text" id="itemInput" placeholder="Aggiungi prodotto con voce...">
   <button id="micBtn">🎤 Detti prodotto</button>
   <span id="micStatus" style="display:none; color:green; font-weight:bold; margin-top:5px;">🎧 Ascolto...</span>
   <button id="addBtn">Aggiungi</button>
 
-  <!-- Input manuale -->
   <textarea id="manualInput" rows="3" placeholder="Scrivi qui i prodotti manualmente, separati da virgola o a capo..."></textarea>
   <button id="manualAddBtn">Aggiungi manualmente</button>
 
-  <button id="shareBtn">Condividi lista</button>
+  <button id="shareBtn">Condividi lista su WhatsApp</button>
   <ul id="shoppingList"></ul>
 </div>
 
@@ -159,7 +154,7 @@ let promemoria = JSON.parse(localStorage.getItem('promemoria') || '[]');
 let shoppingList = JSON.parse(localStorage.getItem('shoppingList') || '[]');
 let selectedDay = null;
 
-// CREA CALENDARIO
+// CALENDARIO
 function createCalendar() {
   calendarDiv.innerHTML = '';
   const today = new Date();
@@ -167,9 +162,7 @@ function createCalendar() {
   const month = today.getMonth();
   const firstDay = new Date(year, month, 1).getDay(); 
   const lastDate = new Date(year, month+1,0).getDate();
-
   for(let i=0;i<firstDay;i++){ calendarDiv.appendChild(document.createElement('div')); }
-
   for(let d=1; d<=lastDate; d++){
     const dayDiv = document.createElement('div');
     dayDiv.className = 'day';
@@ -187,7 +180,7 @@ function selectDay(dayDiv){
   selectedDay = dayDiv.dataset.day;
 }
 
-// REGISTRA PROMEMORIA VOCALE
+// PROMEMORIA VOCALE
 function startRecognition(){
   if(!selectedDay){ alert("Seleziona un giorno nel calendario!"); return; }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -197,4 +190,106 @@ function startRecognition(){
   recognition.lang = "it-IT";
   recognition.onstart = ()=>status.textContent = "🎧 Ascolto...";
   recognition.onerror = e=>status.textContent = "Errore: "+e.error;
-  recognition.onend = ()=>status.textContent
+  recognition.onend = ()=>status.textContent = "";
+  recognition.onresult = e=>{
+    const testo = e.results[0][0].transcript;
+    const numero = promemoria.length + 1;
+    promemoria.push({day:selectedDay,text:testo});
+    localStorage.setItem('promemoria',JSON.stringify(promemoria));
+    renderPromemoria();
+    renderPromemoriaInCalendar();
+  };
+  recognition.start();
+}
+
+// LISTA DELLA SPESA
+function addItem(text){
+  shoppingList.push(text);
+  localStorage.setItem('shoppingList',JSON.stringify(shoppingList));
+  renderList();
+}
+
+function renderList(){
+  shoppingListUl.innerHTML = '';
+  shoppingList.forEach((item,i)=>{
+    const li = document.createElement('li');
+    li.textContent = item;
+    const del = document.createElement('span');
+    del.textContent = '✖';
+    del.className='delete';
+    del.onclick = ()=>{ shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList();}
+    li.appendChild(del);
+    shoppingListUl.appendChild(li);
+  });
+}
+
+// PROMEMORIA
+function renderPromemoria(){
+  promemoriaList.innerHTML='';
+  promemoria.forEach((p,i)=>{
+    const li=document.createElement('li');
+    li.textContent=`[Giorno ${p.day}] ${p.text}`;
+    promemoriaList.appendChild(li);
+  });
+}
+
+function renderPromemoriaInCalendar(){
+  document.querySelectorAll('.day').forEach(d=>{
+    d.querySelectorAll('.promemoria-item').forEach(n=>n.remove());
+    const day = d.dataset.day;
+    promemoria.filter(p=>p.day==day).forEach(p=>{
+      const div = document.createElement('div');
+      div.className='promemoria-item';
+      div.textContent=p.text;
+      d.appendChild(div);
+    });
+  });
+}
+
+// EVENTI
+recordBtn.addEventListener('click', startRecognition);
+manualPromemoriaBtn.addEventListener('click',()=>{
+  if(!selectedDay){ alert("Seleziona un giorno nel calendario!"); return; }
+  const testo = manualPromemoria.value.trim();
+  if(testo){ promemoria.push({day:selectedDay,text:testo}); localStorage.setItem('promemoria',JSON.stringify(promemoria)); manualPromemoria.value=''; renderPromemoria(); renderPromemoriaInCalendar();}
+});
+
+addBtn.addEventListener('click',()=>{ const val = itemInput.value.trim(); if(val){ addItem(val); itemInput.value=''; }});
+manualAddBtn.addEventListener('click', ()=>{ manualInput.value.split(/\n|,/).map(v=>v.trim()).filter(v=>v).forEach(v=>addItem(v)); manualInput.value=''; });
+
+// Condivisione WhatsApp
+shareBtn.addEventListener('click', ()=>{
+  if(shoppingList.length===0){ alert("Lista vuota!"); return; }
+  const text = encodeURIComponent(shoppingList.join('\n'));
+  const url = `https://wa.me/?text=${text}`;
+  window.open(url,'_blank');
+});
+
+// Microfono lista
+micBtn.addEventListener('click', ()=>{
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
+  micStatus.style.display="inline";
+  const micRec = new SpeechRecognition();
+  micRec.lang="it-IT";
+  micRec.interimResults=true;
+  micRec.onresult=e=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal){ addItem(e.results[i][0].transcript); itemInput.value=''; }
+      else{ interim+=e.results[i][0].transcript; }
+    }
+    itemInput.value=interim;
+  };
+  micRec.onend=()=>{ micStatus.style.display="none"; }
+  micRec.onerror=e=>{ micStatus.style.display="none"; alert("Errore microfono: "+e.error); }
+  micRec.start();
+});
+
+// Avvio
+createCalendar();
+renderPromemoria();
+renderList();
+</script>
+</body>
+</html>
