@@ -336,6 +336,19 @@
   }
 
   renderCalendar();
+
+  // --- ADD TO HOME SCREEN ---
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => {
+      if(confirm("Vuoi aggiungere l'Agenda Personale alla Home?")) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => { deferredPrompt = null; });
+      }
+    }, 1000);
+  });
 </script>
 </body>
 </html>
