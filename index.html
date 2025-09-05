@@ -21,12 +21,14 @@
     box-sizing: border-box;
   }
   h1 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
     font-size: 3em;
-    color: #003366;
-    text-shadow: 2px 2px 5px rgba(255, 215, 0, 0.6);
-    margin: 20px auto;
+    color: #1a73e8;
     text-align: center;
+    margin: 20px auto;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   }
   .section {
     width: 100%;
@@ -90,7 +92,7 @@
   }
   .share-btn { background: #28a745; }
 
-  /* Calendario centrato */
+  /* Calendario */
   .calendar-container {
     display: flex;
     flex-direction: column;
@@ -129,7 +131,7 @@
     align-items: center;
     cursor: pointer;
     transition: 0.2s;
-    font-size: 0.9em; /* numeri più piccoli */
+    font-size: 0.9em;
     position: relative;
   }
   .day:hover { background: #d6e4ff; }
@@ -173,7 +175,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>AgendaPersonale</h1>
+  <h1>Agenda</h1>
 
   <!-- PROMEMORIA -->
   <div class="section">
@@ -215,55 +217,46 @@
 </div>
 
 <script>
-  // --- PROMEMORIA ---
+  // PROMEMORIA
   function addMemo() {
     const input = document.getElementById("memoInput");
     if(input.value.trim() === "") return;
     const li = document.createElement("li");
     li.textContent = input.value;
-
     const delBtn = document.createElement("button");
     delBtn.textContent = "❌";
     delBtn.className = "delete-btn";
     delBtn.onclick = () => li.remove();
-
     li.appendChild(delBtn);
     document.getElementById("memoList").appendChild(li);
     input.value = "";
   }
 
   function startMemoVoice() {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert("Il tuo browser non supporta il riconoscimento vocale.");
-      return;
-    }
+    if (!('webkitSpeechRecognition' in window)) { alert("Il tuo browser non supporta il riconoscimento vocale."); return; }
     const recognition = new webkitSpeechRecognition();
     recognition.lang = "it-IT";
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.start();
-
     recognition.onresult = function(event) {
       const transcript = event.results[0][0].transcript;
       document.getElementById("memoInput").value = transcript;
       addMemo();
     };
-
     recognition.onerror = function() { alert("Errore nel riconoscimento vocale."); };
   }
 
-  // --- LISTA SPESA ---
+  // LISTA SPESA
   function addProduct() {
     const input = document.getElementById("shoppingInput");
     if(input.value.trim() === "") return;
     const li = document.createElement("li");
     li.textContent = input.value;
-
     const delBtn = document.createElement("button");
     delBtn.textContent = "❌";
     delBtn.className = "delete-btn";
     delBtn.onclick = () => li.remove();
-
     li.appendChild(delBtn);
     document.getElementById("shoppingList").appendChild(li);
     input.value = "";
@@ -278,7 +271,7 @@
     window.open(url, "_blank");
   }
 
-  // --- CALENDARIO ---
+  // CALENDARIO
   let currentDate = new Date();
   let events = {};
 
@@ -294,30 +287,38 @@
     calendar.innerHTML = "";
 
     const days = ["L","M","M","G","V","S","D"];
-    days.forEach(d => { const div = document.createElement("div"); div.textContent=d; div.className="day-name"; calendar.appendChild(div); });
+    days.forEach(d => { 
+      const div = document.createElement("div"); 
+      div.textContent=d; 
+      div.className="day-name"; 
+      calendar.appendChild(div); 
+    });
 
-    for(let i=1;i<firstDay;i++){ calendar.appendChild(document.createElement("div")); }
+    for(let i=1;i<firstDay;i++){ 
+      const empty = document.createElement("div"); 
+      calendar.appendChild(empty); 
+    }
 
-    for(let d=1; d<=daysInMonth; d++){
-      const div = document.createElement("div");
-      div.textContent = d;
-      div.className = "day";
-      const key = `${year}-${month+1}-${d}`;
+    for(let d=1; d<=daysInMonth; d++){ 
+      const div = document.createElement("div"); 
+      div.textContent = d; 
+      div.className = "day"; 
+      const key = `${year}-${month+1}-${d}`; 
       if(events[key]){
-        div.classList.add("has-event");
-        const dot = document.createElement("div");
-        dot.className = "event-dot";
-        div.appendChild(dot);
+        div.classList.add("has-event"); 
+        const dot = document.createElement("div"); 
+        dot.className = "event-dot"; 
+        div.appendChild(dot); 
       }
-      div.onclick = () => openModal(key);
-      calendar.appendChild(div);
+      div.onclick = () => openModal(key); 
+      calendar.appendChild(div); 
     }
   }
 
   function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); renderCalendar(); }
   function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); renderCalendar(); }
 
-  // --- MODALE EVENTI ---
+  // MODALE EVENTI
   let selectedDate = null;
   function openModal(key){
     selectedDate = key;
