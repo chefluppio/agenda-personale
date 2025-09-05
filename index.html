@@ -5,93 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Agenda Personale Completa</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lexend&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1d5d">
 <style>
 * { box-sizing: border-box; }
-body {
-  font-family: 'Lexend', sans-serif;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: #222;
-  margin: 0; padding: 20px;
-  display: flex; flex-direction: column; align-items: center;
-}
-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 10vw;
-  color: #0a1d5d; 
-  text-shadow: 3px 3px 6px rgba(255, 235, 59, 0.5); 
-  letter-spacing: 1px;
-  display: flex; align-items: center; justify-content: center;
-  text-align: center; background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px); padding: 20px 15px; border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  margin: 0 0 30px 0; width: 95%; max-width: 800px; 
-  word-wrap: break-word;
-}
-.card {
-  font-family: 'Lexend', sans-serif;
-  background: #fff; border-radius: 16px; padding: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  margin-bottom: 20px; width: 100%; max-width: 800px;
-  display: flex; flex-direction: column; align-items: center; text-align: center;
-}
-button {
-  font-family: 'Lexend', sans-serif; background: #4facfe;
-  color: white; border: none; padding: 12px 18px; font-size: 16px;
-  border-radius: 10px; cursor: pointer; transition: background 0.3s;
-  margin-top: 10px; width: 100%;
-  max-width: 200px; text-align: center;
-}
-button:hover { background: #008cff; }
-#status, #micStatus { margin-top: 10px; font-style: italic; color: #555; width: 100%; text-align: center; }
-
-input[type="text"], textarea { text-align: center; width: 100%; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; padding: 8px; outline: none; }
-
-ul { list-style: none; padding: 0; width: 100%; }
-li {
-  background: #f9f9f9; padding: 10px 14px; margin: 8px 0; border-radius: 10px;
-  display: flex; justify-content: center; align-items: center; text-align: center;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-.delete { color: #ff4444; font-weight: bold; cursor: pointer; font-size: 14px; margin-left: 5px; }
-
-#calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  width: 100%;
-  margin-top: 10px;
-}
-.day {
-  background: #f0f0f0;
-  border-radius: 10px;
-  min-height: 80px;
-  padding: 5px;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center;
-  overflow: hidden;
-}
-.day-number {
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 1em;
-}
-.day.selected { background: #4facfe; color: white; }
-.promemoria-item {
-  font-size: 0.7em;
-  background: #ffeb3b;
-  color: #000;
-  border-radius: 4px;
-  padding: 2px 4px;
-  margin: 2px 0;
-  width: 100%;
-  text-align: center;
-  overflow-wrap: break-word;
-}
+body { font-family: 'Lexend', sans-serif; background: linear-gradient(135deg, #4facfe, #00f2fe); color: #222; margin: 0; padding: 20px; display:flex; flex-direction:column; align-items:center;}
+h1 { font-family:'Bebas Neue',sans-serif; font-size:10vw; color:#0a1d5d; text-shadow:3px 3px 6px rgba(255,235,59,0.5); text-align:center; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); padding:20px 15px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.25); margin:0 0 30px 0; width:95%; max-width:800px; word-wrap:break-word;}
+.card { background:#fff; border-radius:16px; padding:20px; box-shadow:0 8px 20px rgba(0,0,0,0.15); margin-bottom:20px; width:100%; max-width:800px; display:flex; flex-direction:column; align-items:center; text-align:center;}
+button { font-family:'Lexend',sans-serif; background:#4facfe; color:white; border:none; padding:12px 18px; font-size:16px; border-radius:10px; cursor:pointer; transition:background 0.3s; margin-top:10px; width:100%; max-width:200px; text-align:center;}
+button:hover { background:#008cff; }
+#status, #micStatus { margin-top:10px; font-style:italic; color:#555; width:100%; text-align:center;}
+input[type="text"], textarea { text-align:center; width:100%; margin-top:5px; border:1px solid #ccc; border-radius:8px; padding:8px; outline:none;}
+ul { list-style:none; padding:0; width:100%; }
+li { background:#f9f9f9; padding:10px 14px; margin:8px 0; border-radius:10px; display:flex; justify-content:space-between; align-items:center; text-align:center; box-shadow:0 3px 8px rgba(0,0,0,0.1);}
+.delete { color:#ff4444; font-weight:bold; cursor:pointer; font-size:14px; margin-left:5px;}
+#calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; width:100%; margin-top:10px;}
+.day { background:#f0f0f0; border-radius:10px; min-height:80px; padding:5px; cursor:pointer; position:relative; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; text-align:center; overflow:hidden;}
+.day-number { font-weight:bold; margin-bottom:5px; font-size:1em;}
+.day.selected { background:#4facfe; color:white;}
+.promemoria-item { font-size:0.7em; background:#ffeb3b; color:#000; border-radius:4px; padding:2px 4px; margin:2px 0; width:100%; text-align:center; overflow-wrap:break-word; display:flex; justify-content:space-between; align-items:center;}
 </style>
 </head>
 <body>
@@ -132,43 +66,41 @@ li {
   <ul id="shoppingList"></ul>
 </div>
 
+<!-- ARCHIVI -->
+<div class="card">
+  <h2>Archivio Promemoria</h2>
+  <ul id="archivedPromemoriaList"></ul>
+</div>
+
+<div class="card">
+  <h2>Archivio Lista della Spesa</h2>
+  <ul id="archivedShoppingList"></ul>
+</div>
+
 <script>
-const recordBtn = document.getElementById('recordBtn');
-const status = document.getElementById('status');
-const calendarDiv = document.getElementById('calendar');
-const promemoriaList = document.getElementById('promemoriaList');
-const manualPromemoria = document.getElementById('manualPromemoria');
-const manualPromemoriaBtn = document.getElementById('manualPromemoriaBtn');
-
-const itemInput = document.getElementById('itemInput');
-const micBtn = document.getElementById('micBtn');
-const micStatus = document.getElementById('micStatus');
-const addBtn = document.getElementById('addBtn');
-const manualInput = document.getElementById('manualInput');
-const manualAddBtn = document.getElementById('manualAddBtn');
-const shareBtn = document.getElementById('shareBtn');
-const shoppingListUl = document.getElementById('shoppingList');
-
-let recognition;
+// Dati
 let promemoria = JSON.parse(localStorage.getItem('promemoria') || '[]');
 let shoppingList = JSON.parse(localStorage.getItem('shoppingList') || '[]');
+let archivedPromemoria = JSON.parse(localStorage.getItem('archivedPromemoria') || '[]');
+let archivedShopping = JSON.parse(localStorage.getItem('archivedShopping') || '[]');
 let selectedDay = null;
 
 // CALENDARIO
 function createCalendar() {
-  calendarDiv.innerHTML = '';
+  const calendarDiv = document.getElementById('calendar');
+  calendarDiv.innerHTML='';
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const firstDay = new Date(year, month, 1).getDay(); 
+  const firstDay = new Date(year, month, 1).getDay();
   const lastDate = new Date(year, month+1,0).getDate();
-  for(let i=0;i<firstDay;i++){ calendarDiv.appendChild(document.createElement('div')); }
+  for(let i=0;i<firstDay;i++) calendarDiv.appendChild(document.createElement('div'));
   for(let d=1; d<=lastDate; d++){
     const dayDiv = document.createElement('div');
-    dayDiv.className = 'day';
-    dayDiv.dataset.day = d;
+    dayDiv.className='day';
+    dayDiv.dataset.day=d;
     dayDiv.innerHTML = `<div class="day-number">${d}</div>`;
-    dayDiv.addEventListener('click', ()=>selectDay(dayDiv));
+    dayDiv.addEventListener('click', ()=>{ selectDay(dayDiv); });
     calendarDiv.appendChild(dayDiv);
   }
   renderPromemoriaInCalendar();
@@ -180,56 +112,28 @@ function selectDay(dayDiv){
   selectedDay = dayDiv.dataset.day;
 }
 
-// PROMEMORIA VOCALE
-function startRecognition(){
-  if(!selectedDay){ alert("Seleziona un giorno nel calendario!"); return; }
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
-
-  recognition = new SpeechRecognition();
-  recognition.lang = "it-IT";
-  recognition.onstart = ()=>status.textContent = "🎧 Ascolto...";
-  recognition.onerror = e=>status.textContent = "Errore: "+e.error;
-  recognition.onend = ()=>status.textContent = "";
-  recognition.onresult = e=>{
-    const testo = e.results[0][0].transcript;
-    const numero = promemoria.length + 1;
-    promemoria.push({day:selectedDay,text:testo});
-    localStorage.setItem('promemoria',JSON.stringify(promemoria));
-    renderPromemoria();
-    renderPromemoriaInCalendar();
-  };
-  recognition.start();
-}
-
-// LISTA DELLA SPESA
-function addItem(text){
-  shoppingList.push(text);
-  localStorage.setItem('shoppingList',JSON.stringify(shoppingList));
-  renderList();
-}
-
-function renderList(){
-  shoppingListUl.innerHTML = '';
-  shoppingList.forEach((item,i)=>{
-    const li = document.createElement('li');
-    li.textContent = item;
-    const del = document.createElement('span');
-    del.textContent = '✖';
-    del.className='delete';
-    del.onclick = ()=>{ shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList();}
-    li.appendChild(del);
-    shoppingListUl.appendChild(li);
-  });
-}
-
-// PROMEMORIA
+// RENDER PROMEMORIA
 function renderPromemoria(){
-  promemoriaList.innerHTML='';
+  const list = document.getElementById('promemoriaList');
+  list.innerHTML='';
   promemoria.forEach((p,i)=>{
     const li=document.createElement('li');
     li.textContent=`[Giorno ${p.day}] ${p.text}`;
-    promemoriaList.appendChild(li);
+
+    const archiveBtn = document.createElement('span');
+    archiveBtn.textContent=' 📦';
+    archiveBtn.style.cursor='pointer';
+    archiveBtn.onclick=()=>{ archivePromemoria(i); };
+
+    const del = document.createElement('span');
+    del.textContent=' ✖';
+    del.style.cursor='pointer';
+    del.style.color='#ff4444';
+    del.onclick=()=>{ promemoria.splice(i,1); localStorage.setItem('promemoria',JSON.stringify(promemoria)); renderPromemoria(); renderPromemoriaInCalendar(); };
+
+    li.appendChild(archiveBtn);
+    li.appendChild(del);
+    list.appendChild(li);
   });
 }
 
@@ -237,38 +141,141 @@ function renderPromemoriaInCalendar(){
   document.querySelectorAll('.day').forEach(d=>{
     d.querySelectorAll('.promemoria-item').forEach(n=>n.remove());
     const day = d.dataset.day;
-    promemoria.filter(p=>p.day==day).forEach(p=>{
+    promemoria.filter(p=>p.day==day).forEach((p,index)=>{
       const div = document.createElement('div');
       div.className='promemoria-item';
       div.textContent=p.text;
+      const del = document.createElement('span');
+      del.textContent=' ✖';
+      del.style.cursor='pointer';
+      del.style.color='#ff4444';
+      del.onclick=()=>{ archivePromemoria(index); };
+      div.appendChild(del);
       d.appendChild(div);
     });
   });
 }
 
-// EVENTI
-recordBtn.addEventListener('click', startRecognition);
-manualPromemoriaBtn.addEventListener('click',()=>{
-  if(!selectedDay){ alert("Seleziona un giorno nel calendario!"); return; }
-  const testo = manualPromemoria.value.trim();
-  if(testo){ promemoria.push({day:selectedDay,text:testo}); localStorage.setItem('promemoria',JSON.stringify(promemoria)); manualPromemoria.value=''; renderPromemoria(); renderPromemoriaInCalendar();}
-});
+// LISTA DELLA SPESA
+function renderList(){
+  const ul = document.getElementById('shoppingList');
+  ul.innerHTML='';
+  shoppingList.forEach((item,i)=>{
+    const li=document.createElement('li');
+    li.textContent=item;
+    const archiveBtn = document.createElement('span');
+    archiveBtn.textContent=' 📦';
+    archiveBtn.onclick=()=>{ archivedShopping.push(shoppingList[i]); shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderList(); renderArchivedShopping(); };
+    const del = document.createElement('span');
+    del.textContent=' ✖';
+    del.onclick=()=>{ shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); };
+    del.style.cursor='pointer';
+    del.style.color='#ff4444';
+    li.appendChild(archiveBtn);
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
 
-addBtn.addEventListener('click',()=>{ const val = itemInput.value.trim(); if(val){ addItem(val); itemInput.value=''; }});
-manualAddBtn.addEventListener('click', ()=>{ manualInput.value.split(/\n|,/).map(v=>v.trim()).filter(v=>v).forEach(v=>addItem(v)); manualInput.value=''; });
+// ARCHIVI
+function renderArchivedPromemoria(){
+  const ul = document.getElementById('archivedPromemoriaList');
+  ul.innerHTML='';
+  archivedPromemoria.forEach((p,i)=>{
+    const li=document.createElement('li');
+    li.textContent=`[Giorno ${p.day}] ${p.text}`;
+    const del = document.createElement('span');
+    del.textContent=' ✖';
+    del.onclick=()=>{ archivedPromemoria.splice(i,1); localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria)); renderArchivedPromemoria(); };
+    del.style.cursor='pointer';
+    del.style.color='#ff4444';
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
 
-// Condivisione WhatsApp
-shareBtn.addEventListener('click', ()=>{
-  if(shoppingList.length===0){ alert("Lista vuota!"); return; }
-  const text = encodeURIComponent(shoppingList.join('\n'));
-  const url = `https://wa.me/?text=${text}`;
+function renderArchivedShopping(){
+  const ul = document.getElementById('archivedShoppingList');
+  ul.innerHTML='';
+  archivedShopping.forEach((item,i)=>{
+    const li=document.createElement('li');
+    li.textContent=item;
+    const del = document.createElement('span');
+    del.textContent=' ✖';
+    del.onclick=()=>{ archivedShopping.splice(i,1); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderArchivedShopping(); };
+    del.style.cursor='pointer';
+    del.style.color='#ff4444';
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
+
+// ARCHIVIA PROMEMORIA
+function archivePromemoria(i){
+  archivedPromemoria.push(promemoria[i]);
+  promemoria.splice(i,1);
+  localStorage.setItem('promemoria',JSON.stringify(promemoria));
+  localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria));
+  renderPromemoria(); renderPromemoriaInCalendar(); renderArchivedPromemoria();
+}
+
+// CONDIVISIONE WHATSAPP
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  const text = shoppingList.join('\n');
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url,'_blank');
 });
 
-// Microfono lista
-micBtn.addEventListener('click', ()=>{
+// MICROFONO PROMEMORIA
+document.getElementById('recordBtn').addEventListener('click',()=>{
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
+  const status = document.getElementById('status');
+  status.textContent="🎧 Ascolto...";
+  const rec = new SpeechRecognition();
+  rec.lang="it-IT";
+  rec.interimResults=true;
+  rec.onresult=e=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal && selectedDay){
+        promemoria.push({day:selectedDay,text:e.results[i][0].transcript});
+        localStorage.setItem('promemoria',JSON.stringify(promemoria));
+        renderPromemoria(); renderPromemoriaInCalendar();
+        status.textContent='';
+      }
+    }
+  };
+  rec.onend=()=>{ status.textContent=''; }
+  rec.onerror=e=>{ status.textContent=''; alert("Errore microfono: "+e.error); }
+  rec.start();
+});
+
+// MANUALE PROMEMORIA
+document.getElementById('manualPromemoriaBtn').addEventListener('click',()=>{
+  const text = document.getElementById('manualPromemoria').value.trim();
+  if(text && selectedDay){
+    promemoria.push({day:selectedDay,text:text});
+    document.getElementById('manualPromemoria').value='';
+    localStorage.setItem('promemoria',JSON.stringify(promemoria));
+    renderPromemoria(); renderPromemoriaInCalendar();
+  }
+});
+
+// LISTA SPESA MANUALE
+document.getElementById('addBtn').addEventListener('click',()=>{
+  const val=document.getElementById('itemInput').value.trim();
+  if(val){ shoppingList.push(val); document.getElementById('itemInput').value=''; localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); }
+});
+document.getElementById('manualAddBtn').addEventListener('click',()=>{
+  const val=document.getElementById('manualInput').value.trim();
+  if(val){ val.split(/[\n,]+/).forEach(i=>{ if(i.trim()) shoppingList.push(i.trim()); }); document.getElementById('manualInput').value=''; localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); }
+});
+
+// MICROFONO LISTA
+document.getElementById('micBtn').addEventListener('click',()=>{
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
+  const micStatus=document.getElementById('micStatus');
   micStatus.style.display="inline";
   const micRec = new SpeechRecognition();
   micRec.lang="it-IT";
@@ -276,20 +283,47 @@ micBtn.addEventListener('click', ()=>{
   micRec.onresult=e=>{
     let interim='';
     for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal){ addItem(e.results[i][0].transcript); itemInput.value=''; }
+      if(e.results[i].isFinal){ shoppingList.push(e.results[i][0].transcript); document.getElementById('itemInput').value=''; localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); }
       else{ interim+=e.results[i][0].transcript; }
     }
-    itemInput.value=interim;
+    document.getElementById('itemInput').value=interim;
   };
   micRec.onend=()=>{ micStatus.style.display="none"; }
   micRec.onerror=e=>{ micStatus.style.display="none"; alert("Errore microfono: "+e.error); }
   micRec.start();
 });
 
-// Avvio
-createCalendar();
-renderPromemoria();
-renderList();
+// AVVIO INIZIALE
+createCalendar(); renderPromemoria(); renderList(); renderArchivedPromemoria(); renderArchivedShopping();
+
+// PROMPT AGGIUNGI ALLA HOME
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  const addBtn = document.createElement('button');
+  addBtn.textContent = "Aggiungi alla Home";
+  addBtn.style.position = "fixed";
+  addBtn.style.bottom = "20px";
+  addBtn.style.left = "50%";
+  addBtn.style.transform = "translateX(-50%)";
+  addBtn.style.padding = "12px 20px";
+  addBtn.style.background = "#4facfe";
+  addBtn.style.color = "#fff";
+  addBtn.style.border = "none";
+  addBtn.style.borderRadius = "12px";
+  addBtn.style.fontSize = "16px";
+  addBtn.style.cursor = "pointer";
+  document.body.appendChild(addBtn);
+
+  addBtn.addEventListener('click', async ()=>{
+    addBtn.style.display="none";
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  });
+});
 </script>
 </body>
 </html>
