@@ -24,8 +24,11 @@ li { background:#f9f9f9; padding:10px 14px; margin:8px 0; border-radius:10px; di
 #calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; width:100%; margin-top:10px;}
 .day { background:#f0f0f0; border-radius:10px; min-height:80px; padding:5px; cursor:pointer; position:relative; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; text-align:center; overflow:hidden;}
 .day-number { font-weight:bold; margin-bottom:5px; font-size:1em;}
-.day.selected { background:#4facfe; color:white;}
-.promemoria-item { font-size:0.7em; background:#ffeb3b; color:#000; border-radius:4px; padding:2px 4px; margin:2px 0; width:100%; text-align:center; overflow-wrap:break-word; display:flex; justify-content:space-between; align-items:center;}
+.day.hasPromemoria { background:#ffd54f !important;}
+#modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+#modal div { background:#fff; padding:20px; border-radius:12px; max-width:400px; width:90%; max-height:80%; overflow-y:auto; }
+#modal h3 { margin-top:0; text-align:center;}
+.promemoria-item { font-size:0.9em; background:#ffeb3b; color:#000; border-radius:4px; padding:4px 6px; margin:4px 0; width:100%; text-align:center; display:flex; justify-content:space-between; align-items:center; }
 </style>
 </head>
 <body>
@@ -45,12 +48,6 @@ li { background:#f9f9f9; padding:10px 14px; margin:8px 0; border-radius:10px; di
   <div id="calendar"></div>
 </div>
 
-<!-- PROMEMORIA LISTA -->
-<div class="card">
-  <h2>Promemoria</h2>
-  <ul id="promemoriaList"></ul>
-</div>
-
 <!-- LISTA DELLA SPESA -->
 <div class="card">
   <h2>Lista della Spesa</h2>
@@ -58,10 +55,8 @@ li { background:#f9f9f9; padding:10px 14px; margin:8px 0; border-radius:10px; di
   <button id="micBtn">🎤 Detti prodotto</button>
   <span id="micStatus" style="display:none; color:green; font-weight:bold; margin-top:5px;">🎧 Ascolto...</span>
   <button id="addBtn">Aggiungi</button>
-
   <textarea id="manualInput" rows="3" placeholder="Scrivi qui i prodotti manualmente, separati da virgola o a capo..."></textarea>
   <button id="manualAddBtn">Aggiungi manualmente</button>
-
   <button id="shareBtn">Condividi lista su WhatsApp</button>
   <ul id="shoppingList"></ul>
 </div>
@@ -75,6 +70,15 @@ li { background:#f9f9f9; padding:10px 14px; margin:8px 0; border-radius:10px; di
 <div class="card">
   <h2>Archivio Lista della Spesa</h2>
   <ul id="archivedShoppingList"></ul>
+</div>
+
+<!-- MODALE -->
+<div id="modal">
+  <div>
+    <h3 id="modalDayTitle"></h3>
+    <ul id="modalPromemoriaList"></ul>
+    <button onclick="closeModal()">Chiudi</button>
+  </div>
 </div>
 
 <script>
@@ -100,16 +104,9 @@ function createCalendar() {
     dayDiv.className='day';
     dayDiv.dataset.day=d;
     dayDiv.innerHTML = `<div class="day-number">${d}</div>`;
-    dayDiv.addEventListener('click', ()=>{ selectDay(dayDiv); });
     calendarDiv.appendChild(dayDiv);
   }
   renderPromemoriaInCalendar();
-}
-
-function selectDay(dayDiv){
-  document.querySelectorAll('.day').forEach(d=>d.classList.remove('selected'));
-  dayDiv.classList.add('selected');
-  selectedDay = dayDiv.dataset.day;
 }
 
 // RENDER PROMEMORIA
@@ -119,104 +116,82 @@ function renderPromemoria(){
   promemoria.forEach((p,i)=>{
     const li=document.createElement('li');
     li.textContent=`[Giorno ${p.day}] ${p.text}`;
-
     const archiveBtn = document.createElement('span');
     archiveBtn.textContent=' 📦';
-    archiveBtn.style.cursor='pointer';
-    archiveBtn.onclick=()=>{ archivePromemoria(i); };
-
+    archiveBtn.onclick=()=>{ archivedPromemoria.push(promemoria[i]); promemoria.splice(i,1); localStorage.setItem('promemoria',JSON.stringify(promemoria)); localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria)); renderPromemoria(); renderPromemoriaInCalendar(); renderArchivedPromemoria(); };
     const del = document.createElement('span');
     del.textContent=' ✖';
     del.style.cursor='pointer';
     del.style.color='#ff4444';
     del.onclick=()=>{ promemoria.splice(i,1); localStorage.setItem('promemoria',JSON.stringify(promemoria)); renderPromemoria(); renderPromemoriaInCalendar(); };
-
     li.appendChild(archiveBtn);
     li.appendChild(del);
     list.appendChild(li);
   });
 }
 
+// RENDER CALENDARIO CON MODALE
 function renderPromemoriaInCalendar(){
   document.querySelectorAll('.day').forEach(d=>{
-    d.querySelectorAll('.promemoria-item').forEach(n=>n.remove());
     const day = d.dataset.day;
-    promemoria.filter(p=>p.day==day).forEach((p,index)=>{
-      const div = document.createElement('div');
-      div.className='promemoria-item';
-      div.textContent=p.text;
-      const del = document.createElement('span');
-      del.textContent=' ✖';
-      del.style.cursor='pointer';
-      del.style.color='#ff4444';
-      del.onclick=()=>{ archivePromemoria(index); };
-      div.appendChild(del);
-      d.appendChild(div);
-    });
+    const dayProm = promemoria.filter(p=>p.day==day);
+    d.classList.remove('hasPromemoria');
+    if(dayProm.length>0) d.classList.add('hasPromemoria');
+    d.onclick = ()=>{ selectedDay = day; openModal(day, dayProm); };
   });
 }
 
-// LISTA DELLA SPESA
-function renderList(){
-  const ul = document.getElementById('shoppingList');
+// MODALE
+function openModal(day, promList){
+  document.getElementById('modalDayTitle').textContent = "Promemoria giorno "+day;
+  const ul = document.getElementById('modalPromemoriaList');
   ul.innerHTML='';
-  shoppingList.forEach((item,i)=>{
-    const li=document.createElement('li');
-    li.textContent=item;
-    const archiveBtn = document.createElement('span');
-    archiveBtn.textContent=' 📦';
-    archiveBtn.onclick=()=>{ archivedShopping.push(shoppingList[i]); shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderList(); renderArchivedShopping(); };
+  promList.forEach((p)=>{
+    const li = document.createElement('li');
+    li.textContent=p.text;
     const del = document.createElement('span');
     del.textContent=' ✖';
-    del.onclick=()=>{ shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); };
-    del.style.cursor='pointer';
     del.style.color='#ff4444';
-    li.appendChild(archiveBtn);
+    del.style.cursor='pointer';
+    del.style.marginLeft='5px';
+    del.onclick = ()=>{
+      const indexGlobal = promemoria.findIndex(pm => pm.day==day && pm.text==p.text);
+      if(indexGlobal>-1){ promemoria.splice(indexGlobal,1); localStorage.setItem('promemoria',JSON.stringify(promemoria)); renderPromemoriaInCalendar(); openModal(day, promemoria.filter(p=>p.day==day)); }
+    };
     li.appendChild(del);
     ul.appendChild(li);
+  });
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+// LISTA SPESA
+function renderList(){
+  const ul = document.getElementById('shoppingList'); ul.innerHTML='';
+  shoppingList.forEach((item,i)=>{
+    const li = document.createElement('li'); li.textContent=item;
+    const archiveBtn = document.createElement('span'); archiveBtn.textContent=' 📦'; archiveBtn.onclick=()=>{ archivedShopping.push(shoppingList[i]); shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderList(); renderArchivedShopping(); };
+    const del = document.createElement('span'); del.textContent=' ✖'; del.onclick=()=>{ shoppingList.splice(i,1); localStorage.setItem('shoppingList',JSON.stringify(shoppingList)); renderList(); }; del.style.cursor='pointer'; del.style.color='#ff4444';
+    li.appendChild(archiveBtn); li.appendChild(del); ul.appendChild(li);
   });
 }
 
 // ARCHIVI
 function renderArchivedPromemoria(){
-  const ul = document.getElementById('archivedPromemoriaList');
-  ul.innerHTML='';
+  const ul = document.getElementById('archivedPromemoriaList'); ul.innerHTML='';
   archivedPromemoria.forEach((p,i)=>{
-    const li=document.createElement('li');
-    li.textContent=`[Giorno ${p.day}] ${p.text}`;
-    const del = document.createElement('span');
-    del.textContent=' ✖';
-    del.onclick=()=>{ archivedPromemoria.splice(i,1); localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria)); renderArchivedPromemoria(); };
-    del.style.cursor='pointer';
-    del.style.color='#ff4444';
-    li.appendChild(del);
-    ul.appendChild(li);
+    const li=document.createElement('li'); li.textContent=`[Giorno ${p.day}] ${p.text}`;
+    const del = document.createElement('span'); del.textContent=' ✖'; del.onclick=()=>{ archivedPromemoria.splice(i,1); localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria)); renderArchivedPromemoria(); }; del.style.cursor='pointer'; del.style.color='#ff4444';
+    li.appendChild(del); ul.appendChild(li);
   });
 }
-
 function renderArchivedShopping(){
-  const ul = document.getElementById('archivedShoppingList');
-  ul.innerHTML='';
+  const ul = document.getElementById('archivedShoppingList'); ul.innerHTML='';
   archivedShopping.forEach((item,i)=>{
-    const li=document.createElement('li');
-    li.textContent=item;
-    const del = document.createElement('span');
-    del.textContent=' ✖';
-    del.onclick=()=>{ archivedShopping.splice(i,1); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderArchivedShopping(); };
-    del.style.cursor='pointer';
-    del.style.color='#ff4444';
-    li.appendChild(del);
-    ul.appendChild(li);
+    const li=document.createElement('li'); li.textContent=item;
+    const del = document.createElement('span'); del.textContent=' ✖'; del.onclick=()=>{ archivedShopping.splice(i,1); localStorage.setItem('archivedShopping',JSON.stringify(archivedShopping)); renderArchivedShopping(); }; del.style.cursor='pointer'; del.style.color='#ff4444';
+    li.appendChild(del); ul.appendChild(li);
   });
-}
-
-// ARCHIVIA PROMEMORIA
-function archivePromemoria(i){
-  archivedPromemoria.push(promemoria[i]);
-  promemoria.splice(i,1);
-  localStorage.setItem('promemoria',JSON.stringify(promemoria));
-  localStorage.setItem('archivedPromemoria',JSON.stringify(archivedPromemoria));
-  renderPromemoria(); renderPromemoriaInCalendar(); renderArchivedPromemoria();
 }
 
 // CONDIVISIONE WHATSAPP
@@ -230,11 +205,8 @@ document.getElementById('shareBtn').addEventListener('click',()=>{
 document.getElementById('recordBtn').addEventListener('click',()=>{
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
-  const status = document.getElementById('status');
-  status.textContent="🎧 Ascolto...";
-  const rec = new SpeechRecognition();
-  rec.lang="it-IT";
-  rec.interimResults=true;
+  const status = document.getElementById('status'); status.textContent="🎧 Ascolto...";
+  const rec = new SpeechRecognition(); rec.lang="it-IT"; rec.interimResults=true;
   rec.onresult=e=>{
     for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal && selectedDay){
@@ -253,12 +225,7 @@ document.getElementById('recordBtn').addEventListener('click',()=>{
 // MANUALE PROMEMORIA
 document.getElementById('manualPromemoriaBtn').addEventListener('click',()=>{
   const text = document.getElementById('manualPromemoria').value.trim();
-  if(text && selectedDay){
-    promemoria.push({day:selectedDay,text:text});
-    document.getElementById('manualPromemoria').value='';
-    localStorage.setItem('promemoria',JSON.stringify(promemoria));
-    renderPromemoria(); renderPromemoriaInCalendar();
-  }
+  if(text && selectedDay){ promemoria.push({day:selectedDay,text:text}); document.getElementById('manualPromemoria').value=''; localStorage.setItem('promemoria',JSON.stringify(promemoria)); renderPromemoria(); renderPromemoriaInCalendar(); }
 });
 
 // LISTA SPESA MANUALE
@@ -275,11 +242,8 @@ document.getElementById('manualAddBtn').addEventListener('click',()=>{
 document.getElementById('micBtn').addEventListener('click',()=>{
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){ alert("Browser non supporta riconoscimento vocale."); return; }
-  const micStatus=document.getElementById('micStatus');
-  micStatus.style.display="inline";
-  const micRec = new SpeechRecognition();
-  micRec.lang="it-IT";
-  micRec.interimResults=true;
+  const micStatus=document.getElementById('micStatus'); micStatus.style.display="inline";
+  const micRec = new SpeechRecognition(); micRec.lang="it-IT"; micRec.interimResults=true;
   micRec.onresult=e=>{
     let interim='';
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -301,7 +265,6 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-
   const addBtn = document.createElement('button');
   addBtn.textContent = "Aggiungi alla Home";
   addBtn.style.position = "fixed";
@@ -316,7 +279,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
   addBtn.style.fontSize = "16px";
   addBtn.style.cursor = "pointer";
   document.body.appendChild(addBtn);
-
   addBtn.addEventListener('click', async ()=>{
     addBtn.style.display="none";
     deferredPrompt.prompt();
