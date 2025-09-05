@@ -10,35 +10,47 @@
       background: #f0f2f5;
       margin: 0;
       padding: 0;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px;
+      box-sizing: border-box;
     }
     h1 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 3em;
       color: #003366;
       text-shadow: 2px 2px 5px rgba(255, 215, 0, 0.6);
-      margin: 20px 0;
+      margin: 20px auto;
+      text-align: center;
     }
-    .section {
-      width: 90%;
-      max-width: 800px;
+    .section, .calendar-container {
+      width: 100%;
       margin: 20px auto;
       background: white;
       border-radius: 15px;
       padding: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-sizing: border-box;
     }
     h2 {
       color: #003366;
       margin-bottom: 15px;
+      text-align: center;
     }
     input, textarea {
-      width: 90%;
+      width: 100%;
+      max-width: 600px;
       padding: 10px;
-      margin: 10px 0;
+      margin: 10px auto;
       border: none;
       border-radius: 8px;
       background: #f9f9f9;
+      display: block;
     }
     button {
       background: #003366;
@@ -47,11 +59,15 @@
       padding: 10px 15px;
       border-radius: 8px;
       cursor: pointer;
-      margin: 5px;
+      margin: 5px auto;
+      display: inline-block;
     }
     ul {
       list-style: none;
       padding: 0;
+      margin: 0 auto;
+      max-width: 600px;
+      text-align: left;
     }
     ul li {
       background: #e9ecef;
@@ -70,32 +86,14 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .share-btn {
-      background: #28a745;
-    }
+    .share-btn { background: #28a745; }
+
     /* Calendario */
-    .calendar-container {
-      width: 95%;
-      max-width: 800px;
-      margin: 20px auto;
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
     .calendar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
-    }
-    .calendar-header button {
-      background: #003366;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
     }
     .calendar-grid {
       display: grid;
@@ -105,6 +103,7 @@
     .day-name {
       font-weight: bold;
       color: #003366;
+      text-align: center;
     }
     .day {
       background: #e9ecef;
@@ -114,13 +113,10 @@
       position: relative;
       cursor: pointer;
       transition: 0.2s;
+      text-align: center;
     }
-    .day:hover {
-      background: #d6e4ff;
-    }
-    .has-event {
-      background: #ffd966;
-    }
+    .day:hover { background: #d6e4ff; }
+    .has-event { background: #ffd966; }
     .event-dot {
       width: 8px;
       height: 8px;
@@ -130,6 +126,7 @@
       bottom: 5px;
       right: 5px;
     }
+    /* Modale */
     #eventModal {
       display: none;
       position: fixed;
@@ -147,175 +144,178 @@
       width: 90%;
       max-width: 400px;
     }
+    @media(max-width:600px){
+      h1 { font-size: 2.2em; }
+      input, textarea { max-width: 100%; }
+      ul { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>AgendaPersonale</h1>
 
-  <h1>AgendaPersonale</h1>
-
-  <!-- REGISTRA PROMEMORIA -->
-  <div class="section">
-    <h2>Registra Promemoria</h2>
-    <textarea id="memoInput" placeholder="Scrivi il promemoria..."></textarea><br>
-    <button onclick="saveMemo()">Salva</button>
-    <ul id="memoList"></ul>
-  </div>
-
-  <!-- LISTA DELLA SPESA -->
-  <div class="section">
-    <h2>Lista della Spesa</h2>
-    <input type="text" id="productInput" placeholder="Scrivi un prodotto">
-    <button onclick="addProduct()">Aggiungi</button>
-    <button onclick="startVoice()">🎤 Voce</button>
-    <button class="share-btn" onclick="shareList()">Condividi</button>
-    <ul id="shoppingList"></ul>
-  </div>
-
-  <!-- CALENDARIO -->
-  <div class="calendar-container">
-    <div class="calendar-header">
-      <button onclick="prevMonth()">&lt;</button>
-      <h2 id="monthYear"></h2>
-      <button onclick="nextMonth()">&gt;</button>
+    <!-- Sezione Promemoria -->
+    <div class="section">
+      <h2>Registra Promemoria</h2>
+      <input type="text" id="promemoriaInput" placeholder="Scrivi un promemoria...">
+      <button onclick="aggiungiPromemoria()">Aggiungi</button>
+      <ul id="promemoriaList"></ul>
     </div>
-    <div class="calendar-grid" id="calendar"></div>
+
+    <!-- Lista della spesa -->
+    <div class="section">
+      <h2>Lista della Spesa</h2>
+      <input type="text" id="spesaInput" placeholder="Aggiungi un prodotto...">
+      <button onclick="aggiungiSpesa()">Aggiungi</button>
+      <button class="share-btn" onclick="condividiLista()">Condividi su WhatsApp</button>
+      <ul id="spesaList"></ul>
+    </div>
+
+    <!-- Calendario -->
+    <div class="calendar-container">
+      <h2>Calendario</h2>
+      <div class="calendar-header">
+        <button onclick="cambiaMese(-1)">&#8592;</button>
+        <span id="meseAnno"></span>
+        <button onclick="cambiaMese(1)">&#8594;</button>
+      </div>
+      <div class="calendar-grid" id="calendar"></div>
+    </div>
   </div>
 
-  <!-- MODALE EVENTO -->
+  <!-- Modale eventi -->
   <div id="eventModal">
     <div class="modal-content">
       <h3 id="eventDate"></h3>
-      <input type="text" id="eventText" placeholder="Inserisci promemoria">
-      <div id="savedEvent"></div>
-      <button onclick="saveEvent()">Salva</button>
-      <button class="delete-btn" onclick="deleteEvent()">Cancella</button>
-      <button onclick="closeModal()">Chiudi</button>
+      <textarea id="eventText" placeholder="Scrivi un promemoria..."></textarea>
+      <button onclick="salvaEvento()">Salva</button>
+      <button onclick="cancellaEvento()">Cancella</button>
+      <button onclick="chiudiModal()">Chiudi</button>
     </div>
   </div>
 
   <script>
-    /* PROMEMORIA */
-    function saveMemo() {
-      const input = document.getElementById("memoInput");
-      if (input.value.trim() !== "") {
-        const li = document.createElement("li");
+    // PROMEMORIA
+    function aggiungiPromemoria() {
+      const input = document.getElementById('promemoriaInput');
+      if(input.value.trim() !== ""){
+        const li = document.createElement('li');
         li.textContent = input.value;
-        const del = document.createElement("button");
-        del.textContent = "X";
-        del.className = "delete-btn";
-        del.onclick = () => li.remove();
-        li.appendChild(del);
-        document.getElementById("memoList").appendChild(li);
+        const btn = document.createElement('button');
+        btn.textContent = "X";
+        btn.className = "delete-btn";
+        btn.onclick = () => li.remove();
+        li.appendChild(btn);
+        document.getElementById('promemoriaList').appendChild(li);
         input.value = "";
       }
     }
 
-    /* LISTA DELLA SPESA */
-    function addProduct() {
-      const input = document.getElementById("productInput");
-      if (input.value.trim() !== "") {
-        const li = document.createElement("li");
+    // LISTA SPESA
+    function aggiungiSpesa() {
+      const input = document.getElementById('spesaInput');
+      if(input.value.trim() !== ""){
+        const li = document.createElement('li');
         li.textContent = input.value;
-        const del = document.createElement("button");
-        del.textContent = "X";
-        del.className = "delete-btn";
-        del.onclick = () => li.remove();
-        li.appendChild(del);
-        document.getElementById("shoppingList").appendChild(li);
+        const btn = document.createElement('button');
+        btn.textContent = "X";
+        btn.className = "delete-btn";
+        btn.onclick = () => li.remove();
+        li.appendChild(btn);
+        document.getElementById('spesaList').appendChild(li);
         input.value = "";
       }
     }
-    function shareList() {
-      const items = document.querySelectorAll("#shoppingList li");
-      let list = "Lista della spesa:\n";
-      items.forEach(i => list += "- " + i.firstChild.textContent + "\n");
-      const url = "https://wa.me/?text=" + encodeURIComponent(list);
+
+    function condividiLista() {
+      const items = document.querySelectorAll("#spesaList li");
+      let testo = "Lista della Spesa:\n";
+      items.forEach(item => testo += "- " + item.childNodes[0].textContent + "\n");
+      const url = "https://wa.me/?text=" + encodeURIComponent(testo);
       window.open(url, "_blank");
     }
-    function startVoice() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = "it-IT";
-      recognition.onresult = function(e) {
-        document.getElementById("productInput").value = e.results[0][0].transcript;
-      };
-      recognition.start();
-    }
 
-    /* CALENDARIO */
-    const calendar = document.getElementById("calendar");
-    const monthYear = document.getElementById("monthYear");
-    const eventModal = document.getElementById("eventModal");
-    const eventDate = document.getElementById("eventDate");
-    const eventText = document.getElementById("eventText");
-    const savedEvent = document.getElementById("savedEvent");
-
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-    let events = {};
-
-    const monthNames = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
-                        "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-    const dayNames = ["L","M","M","G","V","S","D"];
+    // CALENDARIO
+    let currentDate = new Date();
+    let eventi = {};
+    let selectedDate = null;
 
     function renderCalendar() {
+      const calendar = document.getElementById("calendar");
+      const meseAnno = document.getElementById("meseAnno");
       calendar.innerHTML = "";
-      monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-      dayNames.forEach(d => {
+
+      const mese = currentDate.getMonth();
+      const anno = currentDate.getFullYear();
+
+      meseAnno.textContent = currentDate.toLocaleString("it-IT", { month: "long", year: "numeric" });
+
+      const firstDay = new Date(anno, mese, 1).getDay();
+      const giorniMese = new Date(anno, mese+1, 0).getDate();
+
+      const giorniSettimana = ["L","M","M","G","V","S","D"];
+      giorniSettimana.forEach(g => {
         const div = document.createElement("div");
-        div.textContent = d;
-        div.classList.add("day-name");
+        div.textContent = g;
+        div.className = "day-name";
         calendar.appendChild(div);
       });
-      let firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      let daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
-      if (firstDay === 0) firstDay = 7;
-      for (let i = 1; i < firstDay; i++) {
-        calendar.appendChild(document.createElement("div"));
-      }
-      for (let d = 1; d <= daysInMonth; d++) {
+
+      for(let i=1; i < (firstDay===0?7:firstDay); i++){
         const div = document.createElement("div");
-        div.textContent = d;
-        div.classList.add("day");
-        const key = `${currentYear}-${currentMonth+1}-${d}`;
-        if (events[key]) {
+        calendar.appendChild(div);
+      }
+
+      for(let g=1; g<=giorniMese; g++){
+        const div = document.createElement("div");
+        div.textContent = g;
+        div.className = "day";
+        const key = `${anno}-${mese+1}-${g}`;
+        if(eventi[key]){
           div.classList.add("has-event");
           const dot = document.createElement("div");
-          dot.classList.add("event-dot");
+          dot.className = "event-dot";
           div.appendChild(dot);
         }
-        div.onclick = () => openModal(key);
+        div.onclick = () => apriModal(key);
         calendar.appendChild(div);
       }
     }
-    function prevMonth() {
-      currentMonth--;
-      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+
+    function cambiaMese(offset){
+      currentDate.setMonth(currentDate.getMonth()+offset);
       renderCalendar();
     }
-    function nextMonth() {
-      currentMonth++;
-      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+
+    function apriModal(data){
+      selectedDate = data;
+      document.getElementById("eventDate").textContent = data;
+      document.getElementById("eventText").value = eventi[data] || "";
+      document.getElementById("eventModal").style.display = "flex";
+    }
+
+    function salvaEvento(){
+      const text = document.getElementById("eventText").value.trim();
+      if(text){
+        eventi[selectedDate] = text;
+      } else {
+        delete eventi[selectedDate];
+      }
+      chiudiModal();
       renderCalendar();
     }
-    function openModal(dateKey) {
-      eventModal.style.display = "flex";
-      eventDate.textContent = `Promemoria per ${dateKey}`;
-      eventText.value = "";
-      savedEvent.textContent = events[dateKey] || "";
-      savedEvent.style.display = events[dateKey] ? "block" : "none";
-      eventModal.setAttribute("data-key", dateKey);
+
+    function cancellaEvento(){
+      delete eventi[selectedDate];
+      chiudiModal();
+      renderCalendar();
     }
-    function closeModal() { eventModal.style.display = "none"; }
-    function saveEvent() {
-      const key = eventModal.getAttribute("data-key");
-      if (eventText.value.trim() !== "") { events[key] = eventText.value.trim(); }
-      renderCalendar(); closeModal();
+
+    function chiudiModal(){
+      document.getElementById("eventModal").style.display = "none";
     }
-    function deleteEvent() {
-      const key = eventModal.getAttribute("data-key");
-      delete events[key];
-      renderCalendar(); closeModal();
-    }
+
     renderCalendar();
   </script>
 </body>
